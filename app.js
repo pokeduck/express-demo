@@ -1,18 +1,36 @@
 import express, { Router } from "express";
 
-import * as user from "./user.js";
+import * as member from "./router/v1/member.js";
 const app = express();
 const port = 3000;
-let r1 = express.Router();
+
+const v1Router = express.Router();
+const v2Router = express.Router();
+
+const logger = (req, res, next) => {
+  console.log(req.body);
+  next();
+};
 
 app.get("/", (req, res) => {
   res.send("G_G_G_G");
 });
 
+// parse requests of content-type - application/json
+app.use(express.json()); /* bodyParser.json() is deprecated */
+
+// parse requests of content-type - application/x-www-form-urlencoded
+app.use(
+  express.urlencoded({ extended: true })
+); /* bodyParser.urlencoded() is deprecated */
+
+app.use(logger);
+
 app.listen(port, () => {
   console.log(`port ${port}`);
 });
 
-app.use("/user", r1);
+v1Router.post("/user/sign_in", member.signIn);
 
-r1.get("/", user.all);
+app.use("/api/v1", v1Router);
+app.use("/api/v2", v2Router);
