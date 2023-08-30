@@ -2,6 +2,7 @@ import express, { Router } from "express";
 //const express = require("express");
 //const member = require("./router/v1/member.js");
 import * as member from "./router/v1/member.js";
+import * as hash from "./router/v1/hash_test.js";
 const app = express();
 const port = 3000;
 
@@ -9,7 +10,10 @@ const v1Router = express.Router();
 const v2Router = express.Router();
 
 const logger = (req, res, next) => {
-  console.log("Request Body:");
+  console.log("[REQUEST]");
+  console.log("[QUERY]");
+  console.log(req.query);
+  console.log("[BODY]");
   console.log(req.body);
   next();
 };
@@ -33,7 +37,10 @@ app.listen(port, () => {
   console.log(`domain:https://localhost:${port}`);
 });
 
-v1Router.post("/user/sign_in", member.signIn);
-
+v1Router.post("/user/signIn", member.signIn);
+v1Router.post("/user/signUp", member.signUp);
+v1Router.post("/user/modify", member.modify);
+v1Router.get("/hash/create", hash.create);
+v1Router.get("/hash/compare", hash.compare);
 app.use("/api/v1", v1Router);
 app.use("/api/v2", v2Router);

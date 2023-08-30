@@ -1,5 +1,12 @@
 "use strict";
 
+/* const { createHash } = require("node:crypto");
+
+const hash = createHash("sha256"); */
+
+// Prints:
+//   6a2da20943931e9834fc12cfe5bb47bbd9ae43489a30726962b576f4e3993e50
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -49,18 +56,25 @@ module.exports = {
       return { firstName, lastName, email, createdAt, updatedAt };
     });
 
-    // 使用 map 將資料轉換成所需格式
-    const formattedData = randomData.map((item) => {
-      return {
-        firstName: item.firstName,
-        lastName: item.lastName,
-        email: item.email,
-        createdAt: item.createdAt,
-        updatedAt: item.updatedAt,
-      };
-    });
+    return import("../utils/hash.mjs").then((module) => {
+      const { hash } = module;
 
-    return queryInterface.bulkInsert("Users", formattedData);
+      // 使用 calculateHash 函数
+      // 使用 map 將資料轉換成所需格式
+      const formattedData = randomData.map((item) => {
+        return {
+          userName: item.firstName + item.lastName,
+          email: item.email,
+          password: hash("1qazxswe"),
+          modifyAt: item.createdAt,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+          verificationStatus: "false",
+        };
+      });
+
+      return queryInterface.bulkInsert("Users", formattedData);
+    });
   },
 
   async down(queryInterface, Sequelize) {
