@@ -4,7 +4,7 @@ import express, { Router } from "express";
 import * as member from "./router/v1/member.js";
 import * as hash from "./router/v1/hash_test.js";
 const app = express();
-const port = 3000;
+const port = process.env.API_PORT;
 
 const v1Router = express.Router();
 const v2Router = express.Router();
@@ -18,10 +18,6 @@ const logger = (req, res, next) => {
   next();
 };
 
-app.get("/", (req, res) => {
-  res.send("{'data':'welcom my site.'}");
-});
-
 // parse requests of content-type - application/json
 app.use(express.json()); /* bodyParser.json() is deprecated */
 
@@ -34,7 +30,13 @@ app.use(logger);
 
 app.listen(port, () => {
   console.log(process.env);
-  console.log(`domain:https://localhost:${port}`);
+  console.log(`domain:http://localhost:${port}`);
+});
+
+app.get("/", (req, res) => {
+  res.json({
+    data: "welcome my site.",
+  });
 });
 
 v1Router.post("/user/signIn", member.signIn);
