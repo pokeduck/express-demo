@@ -1,13 +1,13 @@
 import jwt, { decode } from "jsonwebtoken";
 import expressJWT from "express-jwt";
 
-const secretKey = "JWE_SECRET_KEY";
+const secretKey = process.env.JWT_SECRET_KEY;
 
 const payload = {
   username: "name",
   id: 1,
 };
-const token = jwt.sign(payload, secretKey, { expiresIn: "60s" });
+const token = jwt.sign(payload, secretKey, { expiresIn: "360s" });
 console.log(token);
 jwt.verify(token, secretKey, (error, decode) => {
   console.log(error);
