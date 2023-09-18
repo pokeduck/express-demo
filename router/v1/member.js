@@ -1,6 +1,5 @@
-import * as Utils from "../../utils/format.js";
-import { createRequire } from "module";
-import { Sequelize, DataTypes, where } from "sequelize";
+import { Sequelize, DataTypes } from "sequelize";
+import * as Token from "../v1/auth.mjs";
 //const require = createRequire(import.meta.url);
 //const userDAO = require("../../models/user.js");
 import userDAO from "../../models/users.js";
@@ -38,12 +37,14 @@ export async function signUp(req, res) {
     const b = req.body;
     console.log(b.firstName + b.lastName + b.email);
     const newDate = new Date();
+    const newToken = Token.generateAccessToken({ name: b.firstName });
     const newUser = await User.create({
       firstName: b.firstName,
       lastName: b.lastName,
       email: b.email,
       createdAt: newDate,
       updatedAt: newDate,
+      authToken: newToken,
     });
     await newUser.save();
     res.json({ result: "success" });
