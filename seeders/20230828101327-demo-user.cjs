@@ -22,59 +22,52 @@ module.exports = {
       );
     }
 
-    // 產生 10 筆隨機資料
-    const randomData = Array.from({ length: 10 }, () => {
-      const firstNames = [
-        "John",
-        "Jane",
-        "Michael",
-        "Emily",
-        "William",
-        "Olivia",
-      ];
-      const lastNames = [
-        "Doe",
-        "Smith",
-        "Johnson",
-        "Williams",
-        "Brown",
-        "Jones",
-      ];
-      const emails = [
-        "example1@example.com",
-        "example2@example.com",
-        "example3@example.com",
-      ];
+    const firstNames = [
+      "John",
+      "Jane",
+      "Michael",
+      "Emily",
+      "William",
+      "Olivia",
+    ];
+    const lastNames = ["Doe", "Smith", "Johnson", "Williams", "Brown", "Jones"];
 
+    // 產生 10 筆隨機資料
+    const randomData = Array.from({ length: 10 }, (idx) => {
       const firstName = firstNames[getRandomInt(0, firstNames.length - 1)];
       const lastName = lastNames[getRandomInt(0, lastNames.length - 1)];
-      const email = emails[getRandomInt(0, emails.length - 1)];
+      const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@gmail.com`;
 
       const createdAt = getRandomDate(new Date(2023, 0, 1), new Date());
       const updatedAt = getRandomDate(createdAt, new Date());
 
-      return { firstName, lastName, email, createdAt, updatedAt };
+      return { firstName, lastName, email, createdAt, updatedAt, idx };
     });
 
-    return import("../utils/hash.mjs").then((module) => {
-      const { hash } = module;
+    return import("../utils/hash.mjs")
+      .then((module) => {
+        const { createHash } = module;
+        return createHash("1qazxswe");
+      })
+      .then((result) => {
+        // 使用 calculateHash 函数
+        // 使用 map 將資料轉換成所需格式
+        const userBaseId = 10_000;
+        const formattedData = randomData.map((item, index) => {
+          return {
+            userName: item.firstName + item.lastName,
+            email: item.email,
+            password: result.hash,
+            modifyAt: item.createdAt,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            verificationStatus: "false",
+            userId: `A${userBaseId + index}`,
+          };
+        });
 
-      // 使用 calculateHash 函数
-      // 使用 map 將資料轉換成所需格式
-      const formattedData = randomData.map((item) => {
-        return {
-          userName: item.firstName + item.lastName,
-          email: item.email,
-          password: hash("1qazxswe"),
-          modifyAt: item.createdAt,
-          createdAt: item.createdAt,
-          updatedAt: item.updatedAt,
-          verificationStatus: "false",
-        };
+        return queryInterface.bulkInsert("Users", formattedData);
       });
-
-      return queryInterface.bulkInsert("Users", formattedData);
-    });
   },
 
   async down(queryInterface, Sequelize) {

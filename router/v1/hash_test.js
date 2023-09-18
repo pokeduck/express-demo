@@ -1,5 +1,14 @@
 import * as hashModule from "../../utils/hash.mjs";
 
+const hashed = hashModule.createHash("a");
+hashed
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+
 export function create(req, resp) {
   const result = hashModule.createHash(req.query.value);
   result
