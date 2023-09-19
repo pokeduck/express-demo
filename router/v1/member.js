@@ -1,9 +1,13 @@
 import { Sequelize, DataTypes } from "sequelize";
 import * as Token from "../v1/auth.mjs";
+import * as Hash from "../../utils/hash.mjs";
 //const require = createRequire(import.meta.url);
 //const userDAO = require("../../models/user.js");
 import userDAO from "../../models/users.js";
+
 import { error } from "console";
+import { access } from "fs";
+import { Router } from "express";
 const sequelize = new Sequelize("db_dev", "root", "root", {
   host: "127.0.0.1",
   port: "8888",
@@ -18,18 +22,59 @@ export async function signIn(req, res) {
   try {
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
-    // Find all users
-    const users = await User.findAll();
-    console.log(users.every((user) => user instanceof User)); // true
-    const allUsers = JSON.stringify(users, null, 2);
-    console.log("All users:", allUsers);
-    res.status(500).json({ message: "G_G" });
+    const email = req.body.email;
+    const password = req.body.password;
+    // Query for user
+    const users = await User.findAll({
+      where: {
+        email: email,
+      },
+    });
+    const firstUser = users[0];
+    if (firstUser === undefined) {
+      res.status(403).json({ message: "user not found." });
+      return;
+    }
+    //console.log(users);
+    //console.log(firstUser);
+    const firstUserHash = firstUser.password;
+    //console.log("db pwd: " + firstUserHash);
+    //console.log("input pwd: " + password);
+    const compareResult = await Hash.compareHash(password, firstUserHash);
+    console.log(compareResult);
+    if (compareResult === false) {
+      //console.log("password wrongn.");
+      res.status(403).json({ message: "password wrong." });
+      return;
+    }
+    //console.log("password correct.");
+
+    const accessToken = Token.generateAccessToken({
+      userName: firstUser.userName,
+      uid: firstUser.userId,
+    });
+    console.log(accessToken);
+    const updateToken = await User.update(
+      { authToken: accessToken },
+      {
+        where: {
+          email: email,
+        },
+      }
+    );
+    firstUser.authToken = accessToken;
+    res.status(200).json({ token: accessToken, data: firstUser });
+
+    //console.log(users.every((user) => user instanceof User)); // true
+    //const allUsers = JSON.stringify(users, null, 2);
+    //console.log("All users:", allUsers);
+    //res.status(500).json({ message: "G_G" });
     //res.json(users);
     //res.send(allUsers);
     //await sequelize.close();
   } catch (error) {
     console.error("Unable to connect to the database:", error);
-    res.send("fail");
+    res.status(500).json({ message: "server error" });
   }
 }
 export async function signUp(req, res) {
@@ -53,12 +98,46 @@ export async function signUp(req, res) {
     res.status(500).json(error);
   }
 }
+function func1(var1) {
+  console.log(var1.cat); //1
+  console.log(var1.dog); //undefined
+}
+
+export async function detail(req, res) {
+  try {
+    const uid = req.body.uid;
+    const user = await User.findAll({
+      where: {
+        userId: uid,
+      },
+    });
+
+    if (user === undefined) {
+      res.status(401).json({ message: "token expired" });
+      return;
+    }
+    const newToken = Token.generateAccessToken({
+      userName: user.userName,
+      uid: user.userId,
+    });
+
+    user.authToken = newToken;
+    res.status(200).json({ token: newToken, data: user });
+  } catch (e) {
+    if (e.name === "TokenExpiredError") {
+      res.status(401).json({ message: "token expired" });
+      return;
+    }
+    res.status(500).json({ message: e.message });
+  }
+}
 
 export async function modify(req, res) {
   try {
     const b = req.body;
-    console.log(b.id);
-    if (b.id === undefined) {
+
+    console.log(b.uid);
+    if (b.uid === undefined) {
       res.status(500).json({ message: "must have id" });
       return;
     }
@@ -66,23 +145,21 @@ export async function modify(req, res) {
 
     const update = await User.update(
       {
-        firstName: b.firstName,
-        lastName: b.lastName,
-        updatedAt: newDate,
+        userName: b.userName,
       },
       {
         where: {
-          id: b.id,
+          userId: b.uid,
         },
       }
     );
     console.log(update);
     if (update[0] == 0) {
-      res.json({ result: "user not found" });
+      res.status(400).json({ message: "user not found" });
     } else {
-      res.json({ result: "success" });
+      res.status(200).json({ message: "success" });
     }
   } catch (e) {
-    res.status(500).json({ message: "Unknown id" });
+    res.status(400).json({ message: "Unknown id" });
   }
 }

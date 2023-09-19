@@ -3,6 +3,7 @@ import express, { Router } from "express";
 //const member = require("./router/v1/member.js");
 import * as member from "./router/v1/member.js";
 import * as hash from "./router/v1/hash_test.js";
+import * as Auth from "./router/v1/auth.mjs";
 const app = express();
 const port = process.env.API_PORT;
 
@@ -26,10 +27,10 @@ app.use(
   express.urlencoded({ extended: true })
 ); /* bodyParser.urlencoded() is deprecated */
 
-app.use(logger);
+//app.use(logger);
 
 app.listen(port, () => {
-  console.log(process.env);
+  //console.log(process.env);
   console.log(`domain:http://localhost:${port}`);
 });
 
@@ -41,7 +42,9 @@ app.get("/", (req, res) => {
 
 v1Router.post("/user/signIn", member.signIn);
 v1Router.post("/user/signUp", member.signUp);
+v1Router.use(Auth.tokenParser);
 v1Router.post("/user/modify", member.modify);
+v1Router.get("/user/detail", member.detail);
 v1Router.get("/hash/create", hash.create);
 v1Router.get("/hash/compare", hash.compare);
 app.use("/api/v1", v1Router);
