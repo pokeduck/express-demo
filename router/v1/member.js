@@ -11,6 +11,7 @@ import { Router, query } from "express";
 import * as url from "url";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+import nodemailer from "nodemailer";
 
 const sequelize = new Sequelize("db_dev", "root", "root", {
   host: "127.0.0.1",
@@ -195,6 +196,24 @@ export async function createEmailVerifyToken(req, res) {
       tokenType: "email",
     });
     await saveToken.save();
+    const transporter = nodemailer.createTestAccount({
+      host: process.env.SMTP_HOST,
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER_ADDRESS,
+        pass: process.env.SMTP_USER_PASSWORD,
+      },
+    });
+
+    const info = await transporter.sendMail({
+      from: `${process.env.SMTP_USER}<${process.env.SMTP_USER_ADDRESS}>`,
+      to: `${process.env.SMTP_USER}<${process.env.SMTP_USER_ADDRESS}>`,
+      subject: "hello",
+      html: "<html>this is sample mail</html>",
+    });
+    log("Message sent: %s", info.messageId);
+
     res.status(200).json({ token: emailToken });
   } catch (e) {
     log(e);
@@ -312,3 +331,32 @@ export async function verifyEmailToken(req, res) {
     query: req.query,
   }); */
 }
+
+const transporter = nodemailer.createTransport({
+  //host: process.env.SMTP_HOST,
+  service: "Gmail",
+  port: 465,
+  secure: false,
+  auth: {
+    user: process.env.SMTP_USER_ADDRESS,
+    pass: process.env.SMTP_USER_PASSWORD,
+  },
+  tls: {
+    ciphers: "SSLv3",
+  },
+});
+async function testMail() {
+  try {
+    const info = await transporter.sendMail({
+      from: `${process.env.SMTP_USER}<${process.env.SMTP_USER_ADDRESS}>`,
+      to: `${process.env.SMTP_USER}<${process.env.SMTP_USER_ADDRESS}>`,
+      subject: "hello",
+      html: "<html>this is sample mail</html>",
+    });
+    log("Message sent: %s", info.messageId);
+  } catch (e) {
+    error(e);
+  }
+}
+
+testMail();
