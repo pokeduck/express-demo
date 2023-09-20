@@ -4,10 +4,14 @@ import * as Hash from "../../utils/hash.mjs";
 //const require = createRequire(import.meta.url);
 //const userDAO = require("../../models/user.js");
 import userDAO from "../../models/users.js";
+import tokenDAO from "../../models/token.js";
+import { error, log } from "console";
+import { readFile } from "fs";
+import { Router, query } from "express";
+import * as url from "url";
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
-import { error } from "console";
-import { access } from "fs";
-import { Router } from "express";
 const sequelize = new Sequelize("db_dev", "root", "root", {
   host: "127.0.0.1",
   port: "8888",
@@ -16,7 +20,7 @@ const sequelize = new Sequelize("db_dev", "root", "root", {
 });
 
 const User = userDAO(sequelize, DataTypes);
-
+const TokenQuery = tokenDAO(sequelize, DataTypes);
 export async function signIn(req, res) {
   // Create a new user
   try {
@@ -162,4 +166,149 @@ export async function modify(req, res) {
   } catch (e) {
     res.status(400).json({ message: "Unknown id" });
   }
+}
+
+export async function createEmailVerifyToken(req, res) {
+  try {
+    const uid = req.body.uid;
+    console.log(uid);
+    if (uid === undefined) {
+      res.status(500).json({ message: "uid not found." });
+      return;
+    }
+    const queryUser = await User.findAll({ where: { userId: uid } });
+    if (queryUser === undefined) {
+      res.status(500).json({ message: "user not found." });
+      return;
+    }
+
+    if (queryUser.verificationStatus == true) {
+      res.status(200).json({ message: "already verificated." });
+      return;
+    }
+
+    const emailToken = Token.generateAccessToken({ uid: uid });
+    const saveToken = await TokenQuery.create({
+      userId: uid,
+      tokenValue: emailToken,
+      usageState: "valid",
+      tokenType: "email",
+    });
+    await saveToken.save();
+    res.status(200).json({ token: emailToken });
+  } catch (e) {
+    log(e);
+    res.status(500).json({ message: "server error." });
+  }
+}
+
+export async function verifyEmailToken(req, res) {
+  function sendExpired(res) {
+    if (accepts.includes("text/html")) {
+      res
+        .status(200)
+        .set("Content-Type", "text/html")
+        .sendFile("verification-expired.html", { root: __dirname });
+    } else {
+      res.status(200).json({ message: "連結過期！" });
+    }
+  }
+  console.log(req.headers);
+  console.log(req.query);
+  const accepts = req.headers["accept"];
+  try {
+    const token = req.query.token;
+    log("input token:" + token);
+    if (token === undefined) {
+      sendExpired(res);
+      return;
+    }
+    const queryToken = await TokenQuery.findAll({
+      where: {
+        tokenValue: token,
+      },
+    });
+    log("queryToken:" + queryToken);
+    if (queryToken === undefined || queryToken.length === 0) {
+      sendExpired(res);
+      return;
+    }
+    if (queryToken.usageState === "invalid") {
+      sendExpired(res);
+      return;
+    }
+
+    const decode = await Token.verifyAccessToken(token);
+    log("decode" + decode.uid);
+    const uid = decode.uid;
+    const user = await User.findAll({ where: { userId: uid } });
+    log("queryUser" + user);
+    if (user === undefined) {
+      sendExpired(res);
+      return;
+    }
+
+    const updateUser = await User.update(
+      {
+        verificationStatus: "true",
+      },
+      {
+        where: {
+          userId: uid,
+        },
+      }
+    );
+
+    if (updateUser[0] == 0) {
+      sendExpired(res);
+      return;
+    }
+
+    const updateToken = await TokenQuery.update(
+      { usageState: "invalid" },
+      {
+        where: {
+          tokenValue: token,
+        },
+      }
+    );
+
+    if (updateToken[0] == 0) {
+      sendExpired(res);
+      return;
+    }
+    if (accepts.includes("text/html")) {
+      res
+        .status(200)
+        .set("Content-Type", "text/html")
+        .sendFile("verification-success.html", { root: __dirname });
+    } else {
+      res.status(200).json({ message: "驗證完成" });
+    }
+  } catch (e) {
+    log(e.message);
+    sendExpired(res);
+    //res.status(500).json({ message: "server error" });
+  }
+  /*   if (accepts.includes("text/html")) {
+    if (req.query.token === "123") {
+      res
+        .status(200)
+        .set("Content-Type", "text/html")
+        .sendFile("verification-success.html", { root: __dirname });
+    } else {
+      res
+        .status(200)
+        .set("Content-Type", "text/html")
+        .sendFile("verification-expired.html", { root: __dirname });
+    }
+  } else {
+    res.status(200).json({ message: "ok" });
+
+  } */
+  /* res.status(200).json({
+    message: "ok",
+    req: req.headers["accept"].split(","),
+    query: req.query,
+  }); */
 }

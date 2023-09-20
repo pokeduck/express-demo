@@ -42,7 +42,9 @@ app.get("/", (req, res) => {
 
 v1Router.post("/user/signIn", member.signIn);
 v1Router.post("/user/signUp", member.signUp);
+v1Router.get("/user/verifyEmailToken", member.verifyEmailToken);
 v1Router.use(Auth.tokenParser);
+v1Router.post("/user/sendVerifyEmailToken", member.createEmailVerifyToken);
 v1Router.post("/user/modify", member.modify);
 v1Router.get("/user/detail", member.detail);
 v1Router.get("/hash/create", hash.create);
