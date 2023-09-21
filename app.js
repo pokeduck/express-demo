@@ -4,6 +4,9 @@ import express, { Router } from "express";
 import * as member from "./router/v1/member.js";
 import * as hash from "./router/v1/hash_test.js";
 import * as Auth from "./router/v1/auth.mjs";
+import * as url from "url";
+const __filename = url.fileURLToPath(import.meta.url);
+const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const app = express();
 const port = process.env.API_PORT;
 
@@ -18,7 +21,8 @@ const logger = (req, res, next) => {
   console.log(req.body);
   next();
 };
-
+app.set("views", __dirname + "/pages");
+app.set("view engine", "ejs");
 // parse requests of content-type - application/json
 app.use(express.json()); /* bodyParser.json() is deprecated */
 

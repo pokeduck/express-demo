@@ -57,15 +57,24 @@ module.exports = {
           return {
             userName: item.firstName + item.lastName,
             email: item.email,
-            password: result.hash,
-            modifyAt: item.createdAt,
+            password: result,
+            //modifyAt: item.createdAt,
             createdAt: item.createdAt,
             updatedAt: item.updatedAt,
             verificationStatus: "false",
             userId: `A${userBaseId + index}`,
           };
         });
-
+        formattedData.push({
+          userName: "olivia.doe",
+          email: "olivia.doe@gmail.com",
+          password: result,
+          //modifyAt: item.createdAt,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          verificationStatus: "false",
+          userId: `A${userBaseId + 11}`,
+        });
         return queryInterface.bulkInsert("Users", formattedData);
       });
   },

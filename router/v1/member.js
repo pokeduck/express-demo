@@ -207,12 +207,13 @@ export async function createEmailVerifyToken(req, res) {
 }
 
 export async function verifyEmailToken(req, res) {
-  function sendExpired(res) {
+  function sendExpired(res, link) {
     if (accepts.includes("text/html")) {
       res
         .status(200)
         .set("Content-Type", "text/html")
-        .sendFile("verification-expired.html", { root: __dirname });
+        .render("verification-expired", { link });
+      //.sendFile("verification-expired.html", { root: __dirname });
     } else {
       res.status(200).json({ message: "連結過期！" });
     }
@@ -224,7 +225,7 @@ export async function verifyEmailToken(req, res) {
     const token = req.query.token;
     log("input token:" + token);
     if (token === undefined) {
-      sendExpired(res);
+      sendExpired(res, "GG0");
       return;
     }
     const queryToken = await TokenQuery.findAll({
@@ -234,7 +235,7 @@ export async function verifyEmailToken(req, res) {
     });
     log("queryToken:" + queryToken);
     if (queryToken === undefined || queryToken.length === 0) {
-      sendExpired(res);
+      sendExpired(res, "GG1");
       return;
     }
     if (queryToken.usageState === "invalid") {
@@ -246,9 +247,9 @@ export async function verifyEmailToken(req, res) {
     log("decode" + decode.uid);
     const uid = decode.uid;
     const user = await User.findAll({ where: { userId: uid } });
-    log("queryUser" + user);
+    log("queryUser" + user[0].userName);
     if (user === undefined) {
-      sendExpired(res);
+      sendExpired(res, "GG2");
       return;
     }
 
@@ -264,7 +265,7 @@ export async function verifyEmailToken(req, res) {
     );
 
     if (updateUser[0] == 0) {
-      sendExpired(res);
+      sendExpired(res, "GG3");
       return;
     }
 
@@ -278,20 +279,24 @@ export async function verifyEmailToken(req, res) {
     );
 
     if (updateToken[0] == 0) {
-      sendExpired(res);
+      sendExpired(res, "GG4");
       return;
     }
     if (accepts.includes("text/html")) {
       res
         .status(200)
         .set("Content-Type", "text/html")
-        .sendFile("verification-success.html", { root: __dirname });
+        .render("verification-success", {
+          user: user[0],
+          token: token,
+        });
+      //.sendFile("verification-success.html", { root: __dirname });
     } else {
       res.status(200).json({ message: "驗證完成" });
     }
   } catch (e) {
     log(e.message);
-    sendExpired(res);
+    sendExpired(res, "GG4");
     //res.status(500).json({ message: "server error" });
   }
   /*   if (accepts.includes("text/html")) {
