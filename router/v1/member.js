@@ -6,9 +6,10 @@ import * as Hash from "../../utils/hash.mjs";
 import userDAO from "../../models/users.js";
 import tokenDAO from "../../models/token.js";
 import { error, log } from "console";
-import { readFile } from "fs";
+import { access, readFile } from "fs";
 import { Router, query } from "express";
 import * as url from "url";
+import _ from "lodash-es";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 import nodemailer from "nodemailer";
@@ -85,21 +86,60 @@ export async function signIn(req, res) {
 export async function signUp(req, res) {
   try {
     const b = req.body;
-    console.log(b.firstName + b.lastName + b.email);
+    console.log(b.userName + b.email);
+    if (_.isUndefined(b.userName)) {
+      res.status(400).json({ message: "username not found." });
+      return;
+    }
+
+    if (_.isUndefined(b.password)) {
+      res.status(400).json({ message: "password not found." });
+      return;
+    }
+
+    if (_.isUndefined(b.email)) {
+      res.status(400).json({ message: "email not found." });
+      return;
+    }
+
     const newDate = new Date();
-    const newToken = Token.generateAccessToken({ name: b.firstName });
+    const sameUser = await User.findOne({
+      where: {
+        email: b.email,
+      },
+    });
+    if (!_.isNull(sameUser)) {
+      console.log(sameUser);
+      res.status(400).json({ message: "already registered." });
+      return;
+    }
+    const lastUser = await User.findOne({
+      order: [["id", "DESC"]],
+    });
+    let uid = 100000;
+    if (!_.isNull(lastUser)) {
+      uid = uid + lastUser.id + 1;
+    }
+    const formatedUid = `A${uid}`;
+
+    const newToken = Token.generateAccessToken({
+      userName: b.userName,
+      uid: uid,
+    });
+    const hashedPassword = await Hash.createHash(b.password);
     const newUser = await User.create({
-      firstName: b.firstName,
-      lastName: b.lastName,
+      userName: b.userName,
       email: b.email,
+      password: hashedPassword,
       createdAt: newDate,
       updatedAt: newDate,
       authToken: newToken,
+      userId: formatedUid,
     });
     await newUser.save();
-    res.json({ result: "success" });
+    res.json({ result: "success", token: newToken });
   } catch (e) {
-    console.error(error);
+    console.error(error.message);
     res.status(500).json(error);
   }
 }
@@ -111,7 +151,7 @@ function func1(var1) {
 export async function detail(req, res) {
   try {
     const uid = req.body.uid;
-    const user = await User.findAll({
+    let user = await User.findOne({
       where: {
         userId: uid,
       },

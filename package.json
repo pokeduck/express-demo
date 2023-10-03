@@ -7,20 +7,24 @@
   "scripts": {
     "start": "nodemon --inspect -r dotenv/config app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate":"npx sequelize-cli db:migrate",
-    "seed":"npx sequelize-cli db:seed:all"
+    "migrate": "npx sequelize-cli db:migrate",
+    "seed": "npx sequelize-cli db:seed:all"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "csrf-csrf": "^3.0.1",
     "dotenv": "^16.3.1",
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-jwt": "^8.4.1",
+    "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.2",
+    "lodash-es": "^4.17.21",
     "mysql2": "^3.6.0",
     "nodemailer": "^6.9.5",
     "sequelize": "^6.32.1"

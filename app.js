@@ -35,7 +35,9 @@ app.use(
 
 app.listen(port, () => {
   //console.log(process.env);
-  console.log(`domain:http://localhost:${port}`);
+  console.log(`Domain: http://localhost:${port}`);
+  console.log("Dirname: " + __dirname);
+  console.log("Filename: " + __filename);
 });
 
 app.get("/", (req, res) => {
