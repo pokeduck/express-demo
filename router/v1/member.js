@@ -56,7 +56,6 @@ export async function signIn(req, res) {
     //console.log("password correct.");
 
     const accessToken = Token.generateAccessToken({
-      userName: firstUser.userName,
       uid: firstUser.userId,
     });
     console.log(accessToken);
@@ -123,8 +122,7 @@ export async function signUp(req, res) {
     const formatedUid = `A${uid}`;
 
     const newToken = Token.generateAccessToken({
-      userName: b.userName,
-      uid: uid,
+      uid: formatedUid,
     });
     const hashedPassword = await Hash.createHash(b.password);
     const newUser = await User.create({
@@ -151,7 +149,7 @@ function func1(var1) {
 export async function detail(req, res) {
   try {
     const uid = req.body.uid;
-    let user = await User.findOne({
+    const user = await User.findOne({
       where: {
         userId: uid,
       },
@@ -161,12 +159,21 @@ export async function detail(req, res) {
       res.status(401).json({ message: "token expired" });
       return;
     }
+    //res.status(200).json({ uid: uid });
+    console.log("USERID:" + user.userId);
     const newToken = Token.generateAccessToken({
-      userName: user.userName,
       uid: user.userId,
     });
 
     user.authToken = newToken;
+    await User.update(
+      { authToken: newToken },
+      {
+        where: {
+          userId: uid,
+        },
+      }
+    );
     res.status(200).json({ token: newToken, data: user });
   } catch (e) {
     if (e.name === "TokenExpiredError") {
