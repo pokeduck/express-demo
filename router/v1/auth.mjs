@@ -43,6 +43,8 @@ export async function verifyAccessToken(token) {
 export function authGrant(req, res) {}
 
 export const tokenParser = (req, res, next) => {
+  console.log("Cookies: ", req.cookies);
+  console.log("Signed Cookies: ", req.signedCookies);
   console.log("middleware: Token Parser");
   const bearerToken = req.headers["authorization"].split(" ")[1];
   if (typeof bearerToken === undefined) {

@@ -5,6 +5,7 @@ import * as member from "./router/v1/member.js";
 import * as hash from "./router/v1/hash_test.js";
 import * as Auth from "./router/v1/auth.mjs";
 import * as url from "url";
+import cookieParser from "cookie-parser";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const app = express();
@@ -25,7 +26,7 @@ app.set("views", __dirname + "/pages");
 app.set("view engine", "ejs");
 // parse requests of content-type - application/json
 app.use(express.json()); /* bodyParser.json() is deprecated */
-
+app.use(cookieParser());
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(
   express.urlencoded({ extended: true })
@@ -41,9 +42,12 @@ app.listen(port, () => {
 });
 
 app.get("/", (req, res) => {
-  res.json({
-    data: "welcome my site.",
-  });
+  res
+    //.cookie("g1", "d1", { expires: 0, maxAge: 10 * 1000 })
+    //.cookie("g2", "d2")
+    .json({
+      data: "welcome my site.",
+    });
 });
 
 v1Router.post("/user/signIn", member.signIn);

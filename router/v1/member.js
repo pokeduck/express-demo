@@ -8,6 +8,7 @@ import tokenDAO from "../../models/token.js";
 import { error, log } from "console";
 import { access, readFile } from "fs";
 import { Router, query } from "express";
+import cookie from "cookie";
 import * as url from "url";
 import _ from "lodash-es";
 const __filename = url.fileURLToPath(import.meta.url);
@@ -68,7 +69,46 @@ export async function signIn(req, res) {
       }
     );
     firstUser.authToken = accessToken;
-    res.status(200).json({ token: accessToken, data: firstUser });
+    const setCookie = cookie.serialize("jwt2", accessToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "strict",
+      maxAge: 60 * 10,
+      path: "/api",
+    });
+    console.log(setCookie);
+    res
+      .status(200)
+      .setHeader(
+        "Set-Cookie",
+        cookie.serialize("jwt1", accessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+          maxAge: 360 * 10,
+          path: "/api",
+        })
+      )
+      .setHeader(
+        "Set-Cookie",
+        cookie.serialize("jwt2", accessToken, {
+          httpOnly: true,
+          secure: false,
+          sameSite: "strict",
+          maxAge: 60 * 10,
+          path: "/api",
+        })
+      )
+      .cookie("a", "b", { expires: 0, maxAge: 600 * 1000 })
+
+      .cookie("c", "d2", {
+        httpOnly: true,
+        secure: false,
+        sameSite: "strict",
+        maxAge: 600 * 1000,
+        path: "/api",
+      })
+      .json({ token: accessToken, data: firstUser });
 
     //console.log(users.every((user) => user instanceof User)); // true
     //const allUsers = JSON.stringify(users, null, 2);
