@@ -5,7 +5,7 @@
   "main": "app.js",
   "type": "module",
   "scripts": {
-    "start": "nodemon --inspect -r dotenv/config app.js",
+    "start": "nodemon --inspect app.js -r dotenv/config ",
     "test": "echo \"Error: no test specified\" && exit 1",
     "migrate": "npx sequelize-cli db:migrate",
     "seed": "npx sequelize-cli db:seed:all"
@@ -24,6 +24,7 @@
     "express": "^4.18.2",
     "express-jwt": "^8.4.1",
     "express-session": "^1.17.3",
+    "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
     "lodash-es": "^4.17.21",
     "mysql2": "^3.6.0",
