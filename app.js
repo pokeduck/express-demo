@@ -13,7 +13,7 @@ import { corsOptions } from "./config/cors/cors.js";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const app = express();
-const port = process.env.API_PORT;
+const port = process.env.API_PORT || 5678;
 
 const v1Router = express.Router();
 const v2Router = express.Router();
