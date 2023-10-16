@@ -46,7 +46,18 @@ export const tokenParser = (req, res, next) => {
   console.log("Cookies: ", req.cookies);
   console.log("Signed Cookies: ", req.signedCookies);
   console.log("middleware: Token Parser");
-  const bearerToken = req.headers["authorization"].split(" ")[1];
+
+  const authHeaders = req.headers["authorization"];
+  if (authHeaders === undefined) {
+    res.status(403).json({ message: "unauthorize" });
+    return;
+  }
+  const authToken = authHeaders.split(" ");
+  if (authToken.length < 2) {
+    res.status(403).json({ message: "unauthorize" });
+    return;
+  }
+  const bearerToken = authToken[1];
   if (typeof bearerToken === undefined) {
     res.status(403).json({ message: "unauthorize" });
     return;

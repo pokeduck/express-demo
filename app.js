@@ -5,11 +5,12 @@ import * as member from "./router/v1/member.js";
 import * as hash from "./router/v1/hash_test.js";
 import * as Auth from "./router/v1/auth.mjs";
 import * as url from "url";
-import * as userValidator from "./validators/user-validator.js";
+import * as signUpValidator from "./validators/signUp.validator.js";
 import cookieParser from "cookie-parser";
-import { body, param, query } from "express-validator";
+import { body, param, query, check } from "express-validator";
 import cors from "cors";
-import { corsOptions } from "./config/cors/cors.js";
+import { corsOptions } from "./config/cors.config.js";
+import { NOTFOUND } from "dns";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const app = express();
@@ -62,13 +63,20 @@ app.get("/", (req, res) => {
 });
 
 v1Router.post("/user/signIn", member.signIn);
-v1Router.post("/user/signUp", userValidator.signUp, member.signUp);
+v1Router.post("/user/signUp", signUpValidator.signUp, member.signUp);
 v1Router.get("/user/verifyEmailToken", member.verifyEmailToken);
-v1Router.use(Auth.tokenParser);
-v1Router.post("/user/sendVerifyEmailToken", member.createEmailVerifyToken);
-v1Router.post("/user/modify", member.modify);
-v1Router.get("/user/detail", member.detail);
-v1Router.get("/hash/create", hash.create);
-v1Router.get("/hash/compare", hash.compare);
+//v1Router.use(Auth.tokenParser);
+v1Router.post(
+  "/user/sendVerifyEmailToken",
+  Auth.tokenParser,
+  member.createEmailVerifyToken
+);
+v1Router.post("/user/modify", Auth.tokenParser, member.modify);
+v1Router.get("/user/detail", Auth.tokenParser, member.detail);
+v1Router.get("/hash/create", Auth.tokenParser, hash.create);
+v1Router.get("/hash/compare", Auth.tokenParser, hash.compare);
 app.use("/api/v1", v1Router);
 app.use("/api/v2", v2Router);
+app.all("*", (req, res) => {
+  res.status(404).json({ message: "unknown" });
+});
