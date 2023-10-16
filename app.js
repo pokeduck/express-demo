@@ -8,6 +8,7 @@ import * as url from "url";
 import * as signUpValidator from "./validators/signUp.validator.js";
 import cookieParser from "cookie-parser";
 import { body, param, query, check } from "express-validator";
+import validationHandler from "./validators/result.validator.js";
 import cors from "cors";
 import { corsOptions } from "./config/cors.config.js";
 import { NOTFOUND } from "dns";
@@ -63,7 +64,12 @@ app.get("/", (req, res) => {
 });
 
 v1Router.post("/user/signIn", member.signIn);
-v1Router.post("/user/signUp", signUpValidator.signUp, member.signUp);
+v1Router.post(
+  "/user/signUp",
+  signUpValidator.signUp,
+  validationHandler,
+  member.signUp
+);
 v1Router.get("/user/verifyEmailToken", member.verifyEmailToken);
 //v1Router.use(Auth.tokenParser);
 v1Router.post(

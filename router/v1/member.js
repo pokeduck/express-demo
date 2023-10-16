@@ -125,14 +125,6 @@ export async function signIn(req, res) {
 }
 export async function signUp(req, res) {
   try {
-    const validateForm = validationResult(req);
-    const validateErrors = validateForm.array();
-    if (validateErrors.length > 0) {
-      //const result2 = validateForm.formatWith((error) => error.msg);
-
-      res.status(422).json({ message: validateErrors[0].msg });
-      return;
-    }
     const b = req.body;
     console.log(b.userName + b.email);
     if (_.isUndefined(b.userName)) {
