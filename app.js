@@ -83,6 +83,8 @@ v1Router.get("/hash/create", Auth.tokenParser, hash.create);
 v1Router.get("/hash/compare", Auth.tokenParser, hash.compare);
 app.use("/api/v1", v1Router);
 app.use("/api/v2", v2Router);
+
+app.use("/favicon.ico", express.static("images/favicon.ico"));
 app.all("*", (req, res) => {
   res.status(404).json({ message: "unknown" });
 });
