@@ -8,5 +8,9 @@ export const responder = (err, req, res, next) => {
 };
 import express from "express";
 export const invalidPath = (req, res, next) => {
-  res.status(404).json({ message: "resource not found", request: req.path });
+  if (req.headers.accept.split(",").indexOf("text/html") >= 0) {
+    res.render("404-not-found");
+  } else {
+    res.status(404).json({ message: "resource not found", request: req.path });
+  }
 };
