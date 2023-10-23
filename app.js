@@ -5,6 +5,7 @@ import { body, param, query, check } from "express-validator";
 import cors from "cors";
 import { corsOptions } from "./config/cors.config.js";
 import { NOTFOUND } from "dns";
+import * as ErrorHandler from "./middlewares/error-handler.js";
 
 import * as url from "url";
 const __filename = url.fileURLToPath(import.meta.url);
@@ -56,10 +57,13 @@ app.get("/", (req, res) => {
 });
 import v1Router from "./routes/v1/index.routes.js";
 import v2Router from "./routes/v2/index.routes.js";
+
 app.use("/api/v1", v1Router);
 app.use("/api/v2", v2Router());
 
 app.use("/favicon.ico", express.static("images/favicon.ico"));
 app.all("*", (req, res) => {
-  res.status(404).json({ message: "unknown" });
+  res.status(404).json({ message: "unknown", request: req.path });
 });
+app.use(ErrorHandler.logger);
+app.use(ErrorHandler.responder);
