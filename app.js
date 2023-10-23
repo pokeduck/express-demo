@@ -48,12 +48,6 @@ app.get("/hello", query("id").notEmpty, (req, res) => {
 });
 app.get("/", (req, res) => {
   res.render("welcome");
-  /* res
-    //.cookie("g1", "d1", { expires: 0, maxAge: 10 * 1000 })
-    //.cookie("g2", "d2")
-    .json({
-      data: "welcome my site.",
-    }); */
 });
 import v1Router from "./routes/v1/index.routes.js";
 import v2Router from "./routes/v2/index.routes.js";
@@ -62,8 +56,7 @@ app.use("/api/v1", v1Router);
 app.use("/api/v2", v2Router());
 
 app.use("/favicon.ico", express.static("images/favicon.ico"));
-app.all("*", (req, res) => {
-  res.status(404).json({ message: "unknown", request: req.path });
-});
+
 app.use(ErrorHandler.logger);
 app.use(ErrorHandler.responder);
+app.use(ErrorHandler.invalidPath);
