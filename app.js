@@ -1,23 +1,19 @@
 import express, { Router } from "express";
-//const express = require("express");
-//const member = require("./router/v1/member.js");
-import * as member from "./router/v1/member.js";
-import * as hash from "./router/v1/hash_test.js";
-import * as Auth from "./router/v1/auth.mjs";
-import * as url from "url";
-import * as signUpValidator from "./validators/signUp.validator.js";
+
 import cookieParser from "cookie-parser";
 import { body, param, query, check } from "express-validator";
-import validationHandler from "./validators/result.validator.js";
 import cors from "cors";
 import { corsOptions } from "./config/cors.config.js";
 import { NOTFOUND } from "dns";
+
+import * as url from "url";
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const app = express();
 const port = process.env.API_PORT || 5678;
 
-const v1Router = express.Router();
+//const v1Router = express.Router();
+import { v1Router } from "./router/v1/v1.router.js";
 const v2Router = express.Router();
 
 const logger = (req, res, next) => {
@@ -63,24 +59,6 @@ app.get("/", (req, res) => {
     }); */
 });
 
-v1Router.post("/user/signIn", member.signIn);
-v1Router.post(
-  "/user/signUp",
-  signUpValidator.signUp,
-  validationHandler,
-  member.signUp
-);
-v1Router.get("/user/verifyEmailToken", member.verifyEmailToken);
-//v1Router.use(Auth.tokenParser);
-v1Router.post(
-  "/user/sendVerifyEmailToken",
-  Auth.tokenParser,
-  member.createEmailVerifyToken
-);
-v1Router.post("/user/modify", Auth.tokenParser, member.modify);
-v1Router.get("/user/detail", Auth.tokenParser, member.detail);
-v1Router.get("/hash/create", Auth.tokenParser, hash.create);
-v1Router.get("/hash/compare", Auth.tokenParser, hash.compare);
 app.use("/api/v1", v1Router);
 app.use("/api/v2", v2Router);
 
