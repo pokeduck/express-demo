@@ -40,9 +40,7 @@ app.listen(port, () => {
   console.log("Dirname: " + __dirname);
   console.log("Filename: " + __filename);
 });
-app.get("/hello", query("id").notEmpty, (req, res) => {
-  res.json({ data: `hello id:${req.query.id}` });
-});
+
 app.get("/", (req, res) => {
   res.render("welcome");
 });
