@@ -13,7 +13,7 @@ const app = express();
 const port = process.env.API_PORT || 5678;
 
 //const v1Router = express.Router();
-import { v1Router } from "./router/v1/v1.router.js";
+import v1Router from "./router/v1/v1.router.js";
 const v2Router = express.Router();
 
 const logger = (req, res, next) => {

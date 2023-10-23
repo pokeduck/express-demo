@@ -5,23 +5,24 @@ import * as Auth from "./auth.mjs";
 import * as signUpValidator from "../../validators/signUp.validator.js";
 import validationHandler from "../../validators/result.validator.js";
 
-export const v1Router = express.Router();
+const router = express.Router();
+export default router;
 
-v1Router.post("/user/signIn", member.signIn);
-v1Router.post(
+router.post("/user/signIn", member.signIn);
+router.post(
   "/user/signUp",
   signUpValidator.signUp,
   validationHandler,
   member.signUp
 );
-v1Router.get("/user/verifyEmailToken", member.verifyEmailToken);
+router.get("/user/verifyEmailToken", member.verifyEmailToken);
 //v1Router.use(Auth.tokenParser);
-v1Router.post(
+router.post(
   "/user/sendVerifyEmailToken",
   Auth.tokenParser,
   member.createEmailVerifyToken
 );
-v1Router.post("/user/modify", Auth.tokenParser, member.modify);
-v1Router.get("/user/detail", Auth.tokenParser, member.detail);
-v1Router.get("/hash/create", Auth.tokenParser, hash.create);
-v1Router.get("/hash/compare", Auth.tokenParser, hash.compare);
+router.post("/user/modify", Auth.tokenParser, member.modify);
+router.get("/user/detail", Auth.tokenParser, member.detail);
+router.get("/hash/create", Auth.tokenParser, hash.create);
+router.get("/hash/compare", Auth.tokenParser, hash.compare);
