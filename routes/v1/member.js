@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes } from "sequelize";
-import * as Token from "../v1/auth.mjs";
+import * as Token from "./auth.mjs";
 import * as Hash from "../../utils/hash.mjs";
 //const require = createRequire(import.meta.url);
 //const userDAO = require("../../models/user.js");

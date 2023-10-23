@@ -12,10 +12,6 @@ const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 const app = express();
 const port = process.env.API_PORT || 5678;
 
-//const v1Router = express.Router();
-import v1Router from "./router/v1/v1.router.js";
-const v2Router = express.Router();
-
 const logger = (req, res, next) => {
   console.log("[REQUEST]");
   console.log("[QUERY]");
@@ -58,9 +54,10 @@ app.get("/", (req, res) => {
       data: "welcome my site.",
     }); */
 });
-
+import v1Router from "./routes/v1/index.routes.js";
+import v2Router from "./routes/v2/index.routes.js";
 app.use("/api/v1", v1Router);
-app.use("/api/v2", v2Router);
+app.use("/api/v2", v2Router());
 
 app.use("/favicon.ico", express.static("images/favicon.ico"));
 app.all("*", (req, res) => {
