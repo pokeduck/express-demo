@@ -3,7 +3,7 @@ import express, { Router } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { corsOptions } from "./config/cors.config.js";
-import * as ErrorHandler from "./middlewares/error-handler.js";
+import * as ErrorHandler from "./middlewares/error-handler.middleware.js";
 
 import * as url from "url";
 const __filename = url.fileURLToPath(import.meta.url);

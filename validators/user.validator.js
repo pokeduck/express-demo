@@ -1,4 +1,5 @@
 import { body, param } from "express-validator";
+import resultHandler from "./result.validator.js";
 const passwordValidator = () => {
   return body("password")
     .notEmpty()
@@ -6,7 +7,7 @@ const passwordValidator = () => {
     .isLength({ min: 3 })
     .withMessage("password must be 3 characters long.");
 };
-const signInValidator = () => {
+const emailValidator = () => {
   return body("email")
     .notEmpty()
     .withMessage("email must not empty")
@@ -14,7 +15,7 @@ const signInValidator = () => {
     .withMessage("email format wrong.");
 };
 const userNameValidator = () => {
-  body("userName")
+  return body("userName")
     .notEmpty()
     .withMessage("user name cannot be empty.")
     .bail()
@@ -30,6 +31,11 @@ const userNameValidator = () => {
     } */
     });
 };
-export const signIn = [signInValidator(), passwordValidator()];
+export const signIn = [emailValidator(), passwordValidator(), resultHandler];
 
-export const signUp = [userNameValidator()];
+export const signUp = [
+  emailValidator(),
+  passwordValidator(),
+  userNameValidator(),
+  resultHandler,
+];
