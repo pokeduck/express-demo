@@ -4,6 +4,7 @@ import query from "../services/db.service.js";
 import * as Hash from "../utils/hash.mjs";
 import * as JWT from "../utils/jwt.js";
 import uidFormat from "../utils/uid.js";
+import responseHander from "../utils/responseHander.js";
 const userQuery = query(UserDAO);
 class UserController {
   async signIn(req, res, next) {
@@ -25,7 +26,8 @@ class UserController {
       });
       console.log(sameUser);
       if (sameUser !== null) {
-        res.status(200).json({ message: `${email} already exist.` });
+        responseHander(res, null, "ER001", `${email} already exist.`);
+
         return;
       }
       const hashedPassword = await Hash.createHash(password);
@@ -53,7 +55,7 @@ class UserController {
       );
       createUser.authToken = accessToken;
       createUser.userId = formatedUid;
-      res.status(200).json({ message: createUser });
+      responseHander(res, createUser);
     } catch (error) {
       next(error);
     }
