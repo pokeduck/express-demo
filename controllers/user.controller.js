@@ -28,8 +28,8 @@ class UserController {
         responseHander(res, null, 400, "email or password wrong");
         return;
       }
-      const newAccessToken = JWT.generateAccessToken({ uid: user.userId });
-      userQuery.authToken = newAccessToken;
+      const newAccessToken = JWT.generateAccessTokenWithUid(user.userId);
+      user.authToken = newAccessToken;
       await userQuery.update(
         {
           authToken: newAccessToken,
@@ -40,15 +40,23 @@ class UserController {
           },
         }
       );
-      responseHander(res, user);
+      responseHander(res, formatUser(user));
     } catch (error) {
       next(error);
     }
   }
   async profile(req, res, next) {
     try {
-    } catch (error) {}
-    res.status(200).json({ message: "profile" });
+      const uid = req.body.uid;
+      const user = await userQuery.findOne({ where: { userId: uid } });
+      if (user === null) {
+        responseHander(res, null, 400, "user not found.");
+        return;
+      }
+      responseHander(res, formatUser(user));
+    } catch (error) {
+      next(error);
+    }
   }
   async signUp(req, res, next) {
     try {
@@ -75,7 +83,7 @@ class UserController {
       });
       const createdUid = createUser.id;
       const formatedUid = uidFormat(createdUid, createDate);
-      const accessToken = JWT.generateAccessToken({ uid: formatedUid });
+      const accessToken = JWT.generateAccessTokenWithUid(formatedUid);
       const updateUser = await userQuery.update(
         {
           authToken: accessToken,
@@ -89,11 +97,20 @@ class UserController {
       );
       createUser.authToken = accessToken;
       createUser.userId = formatedUid;
-      responseHander(res, createUser);
+      responseHander(res, formatUser(createUser));
     } catch (error) {
       next(error);
     }
   }
+}
+
+function formatUser(user) {
+  return {
+    uid: user.userId,
+    userName: user.userName,
+    email: user.email,
+    accessToken: user.authToken,
+  };
 }
 
 export default new UserController();

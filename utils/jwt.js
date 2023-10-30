@@ -24,6 +24,27 @@ function test() {
 //const decode = expressJWT({ecret: secretKey, algorithms: ["HS256"] });
 //app.use(expressJWT({ secret:secretKey, algorithms: ['HS256'] }).unless({ path: [/^\/api\//] }));
 //console.log(decode);
+
+export function generateAccessTokenWithUid(uid) {
+  const token = jwt.sign({ uid: uid }, secretKey, { expiresIn: "360s" });
+  return token;
+}
+
+export async function getUidFromAccessToken(token) {
+  return verifyAccessToken(token)
+    .then((verifyResult) => {
+      if (verifyResult.uid === undefined) {
+        const error = new Error("token expired.");
+        error.status = 401;
+        throw error;
+      }
+      return verifyResult.uid;
+    })
+    .catch((e) => {
+      throw e;
+    });
+}
+
 export function generateAccessToken(payload) {
   const token = jwt.sign(payload, secretKey, { expiresIn: "360s" });
   return token;
