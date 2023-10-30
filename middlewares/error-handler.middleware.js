@@ -28,7 +28,8 @@ export const logger = (err, req, res, next) => {
 };
 export const responder = (err, req, res, next) => {
   const status = err.status || 400;
-  res.status(status).json({ message: err.message });
+  responseHander(res, null, status, err.message, status);
+  //res.status(status).json({ message: err.message });
 };
 import express from "express";
 export const invalidPath = (req, res, next) => {
