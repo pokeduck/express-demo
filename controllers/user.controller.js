@@ -8,8 +8,42 @@ import responseHander from "../utils/responseHander.js";
 const userQuery = query(UserDAO);
 class UserController {
   async signIn(req, res, next) {
-    next(new Error("error test"));
-    //res.status(200).json({ message: "signin" });
+    const email = req.body.email;
+    const password = req.body.password;
+    try {
+      const user = await userQuery.findOne({
+        where: {
+          email: email,
+        },
+      });
+      if (user === null) {
+        console.error("user not found.");
+        responseHander(res, null, 400, "email or password wrong");
+        return;
+      }
+      console.log(user);
+      const result = Hash.compareHash(password, user.password);
+      if (result === false) {
+        console.error("password wrong.");
+        responseHander(res, null, 400, "email or password wrong");
+        return;
+      }
+      const newAccessToken = JWT.generateAccessToken({ uid: user.userId });
+      userQuery.authToken = newAccessToken;
+      await userQuery.update(
+        {
+          authToken: newAccessToken,
+        },
+        {
+          where: {
+            userId: user.userId,
+          },
+        }
+      );
+      responseHander(res, user);
+    } catch (error) {
+      next(error);
+    }
   }
   async profile(req, res, next) {
     try {
