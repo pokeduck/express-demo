@@ -30,7 +30,7 @@ class UserController {
 
         return;
       }
-      const hashedPassword = await Hash.createHash(password);
+      const hashedPassword = Hash.createHash(password);
       const createDate = new Date();
       const createUser = await userQuery.create({
         userName: userName,

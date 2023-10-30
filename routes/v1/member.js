@@ -48,7 +48,7 @@ export async function signIn(req, res) {
     const firstUserHash = firstUser.password;
     //console.log("db pwd: " + firstUserHash);
     //console.log("input pwd: " + password);
-    const compareResult = await Hash.compareHash(password, firstUserHash);
+    const compareResult = Hash.compareHash(password, firstUserHash);
     console.log(compareResult);
     if (compareResult === false) {
       //console.log("password wrongn.");
@@ -165,7 +165,7 @@ export async function signUp(req, res) {
     const newToken = Token.generateAccessToken({
       uid: formatedUid,
     });
-    const hashedPassword = await Hash.createHash(b.password);
+    const hashedPassword = Hash.createHash(b.password);
     const newUser = await User.create({
       userName: b.userName,
       email: b.email,
