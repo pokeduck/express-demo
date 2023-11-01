@@ -5,6 +5,7 @@ import * as Hash from "../utils/hash.mjs";
 import * as JWT from "../utils/jwt.js";
 import uidFormat from "../utils/uid.js";
 import responseHander from "../utils/responseHander.js";
+import * as RedisRefreshToken from "../services/token.service.js";
 const userQuery = query(UserDAO);
 class UserController {
   async signIn(req, res, next) {
@@ -40,6 +41,9 @@ class UserController {
           },
         }
       );
+      const newRefreshToken = Hash.createHash(user.userId);
+      await RedisRefreshToken.storeRefreshToken(user.userId, newRefreshToken);
+      user.refreshToken = newRefreshToken;
       responseHander(res, formatUser(user));
     } catch (error) {
       next(error);
@@ -110,6 +114,7 @@ function formatUser(user) {
     userName: user.userName,
     email: user.email,
     accessToken: user.authToken,
+    refreshToken: user.refreshToken,
   };
 }
 
