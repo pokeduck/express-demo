@@ -21,8 +21,8 @@ export default (req, res, next) => {
     responseHander(res, null, 403, "unauthorize");
     return;
   }
-  console.log("Token:" + bearerToken);
-  const uid = JWT.getUidFromAccessToken(bearerToken)
+  console.log("Access Token:" + bearerToken);
+  const uid = JWT.getUidFromToken(bearerToken)
     .then((uid) => {
       console.log("decode uid: " + uid);
       req.body.uid = uid;

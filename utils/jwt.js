@@ -1,6 +1,11 @@
 import jwt, { decode } from "jsonwebtoken";
-const secretKey = process.env.JWT_SECRET_KEY;
-//const secretKey = "key";
+import * as RedisRefreshToken from "../services/token.service.js";
+import * as Hash from "./hash.mjs";
+import {
+  ACCESS_TOKEN_EXPIRE_TIME,
+  REFRESH_TOKEN_EXPIRE_TIME,
+} from "../config/token.config.js";
+const secretKey = process.env.JWT_SECRET_KEY ?? "key";
 
 function test() {
   const payload = {
@@ -11,7 +16,7 @@ function test() {
   const token = generateAccessToken(payload);
   console.log(token);
 
-  const decode = verifyAccessToken(token);
+  const decode = verifyToken(token);
   decode
     .then((result) => {
       console.log(result);
@@ -26,15 +31,17 @@ function test() {
 //console.log(decode);
 
 export function generateAccessTokenWithUid(uid) {
-  const token = jwt.sign({ uid: uid }, secretKey, { expiresIn: "360s" });
+  const token = jwt.sign({ uid: uid }, secretKey, {
+    expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
+  });
   return token;
 }
 
-export async function getUidFromAccessToken(token) {
-  return verifyAccessToken(token)
+export async function getUidFromToken(token) {
+  return verifyToken(token)
     .then((verifyResult) => {
       if (verifyResult.uid === undefined) {
-        const error = new Error("token expired.");
+        const error = new Error("access token expired.");
         error.status = 401;
         throw error;
       }
@@ -46,10 +53,19 @@ export async function getUidFromAccessToken(token) {
 }
 
 export function generateAccessToken(payload) {
-  const token = jwt.sign(payload, secretKey, { expiresIn: "360s" });
+  const token = jwt.sign(payload, secretKey, {
+    expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
+  });
   return token;
 }
-export async function verifyAccessToken(token) {
+export function generateRefreshTokenWithUid(uid) {
+  const token = jwt.sign({ uid: uid }, secretKey, {
+    expiresIn: REFRESH_TOKEN_EXPIRE_TIME,
+  });
+  return token;
+}
+
+export async function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secretKey, (error, decode) => {
       if (error != null) {
@@ -84,15 +100,15 @@ export const tokenParser = (req, res, next) => {
     return;
   }
   console.log("Token:" + bearerToken);
-  verifyAccessToken(bearerToken)
+  verifyToken(bearerToken)
     .then((verifyResult) => {
       if (verifyResult.uid === undefined) {
         res.status(401).json({ message: "token expired" });
         return;
       }
       req.body.uid = verifyResult.uid;
-      console.log("token uid:" + verifyResult.uid);
-      console.log("body uid:" + req.body.uid);
+      console.log("token uid:" + verifyResult?.uid ?? "");
+      console.log("body uid:" + req?.body?.uid ?? "");
       next();
     })
     .catch((e) => {

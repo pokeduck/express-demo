@@ -9,8 +9,7 @@ import * as RedisRefreshToken from "../services/token.service.js";
 const userQuery = query(UserDAO);
 class UserController {
   async signIn(req, res, next) {
-    const email = req.body.email;
-    const password = req.body.password;
+    const { email, password } = req.body;
     try {
       const user = await userQuery.findOne({
         where: {
@@ -41,8 +40,8 @@ class UserController {
           },
         }
       );
-      const newRefreshToken = Hash.createHash(user.userId);
-      await RedisRefreshToken.storeRefreshToken(user.userId, newRefreshToken);
+      const newRefreshToken =
+        await RedisRefreshToken.signAndRewriteRefreshTokenToRedis(user.userId);
       user.refreshToken = newRefreshToken;
       responseHander(res, formatUser(user));
     } catch (error) {
@@ -104,6 +103,25 @@ class UserController {
       responseHander(res, formatUser(createUser));
     } catch (error) {
       next(error);
+    }
+  }
+  async token(req, res, next) {
+    try {
+      const refreshToken = req.body?.refreshToken ?? "";
+      const uid = await JWT.getUidFromToken(refreshToken);
+      const newAccessToken = JWT.generateAccessTokenWithUid(uid);
+      responseHander(res, {
+        accessToken: newAccessToken,
+        refreshToken: refreshToken,
+      });
+    } catch (error) {
+      responseHander(
+        res,
+        null,
+        403,
+        "Your refreshToken has expired. Kindly proceed with signing in once more.",
+        403
+      );
     }
   }
 }

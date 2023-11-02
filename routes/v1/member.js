@@ -331,7 +331,7 @@ export async function verifyEmailToken(req, res) {
       return;
     }
 
-    const decode = await Token.verifyAccessToken(token);
+    const decode = await Token.verifyToken(token);
     log("decode" + decode.uid);
     const uid = decode.uid;
     const user = await User.findAll({ where: { userId: uid } });

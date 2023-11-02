@@ -31,6 +31,11 @@ const userNameValidator = () => {
     } */
     });
 };
+const refreshTokenValidator = () => {
+  return body("refreshToken")
+    .notEmpty()
+    .withMessage("refreshToken cannot be empty.");
+};
 export const signIn = [emailValidator(), passwordValidator(), resultHandler];
 
 export const signUp = [
@@ -39,3 +44,4 @@ export const signUp = [
   userNameValidator(),
   resultHandler,
 ];
+export const token = [refreshTokenValidator(), resultHandler];

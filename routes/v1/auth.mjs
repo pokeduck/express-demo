@@ -11,7 +11,7 @@ function test() {
   const token = generateAccessToken(payload);
   console.log(token);
 
-  const decode = verifyAccessToken(token);
+  const decode = verifyToken(token);
   decode
     .then((result) => {
       console.log(result);
@@ -28,7 +28,7 @@ export function generateAccessToken(payload) {
   const token = jwt.sign(payload, secretKey, { expiresIn: "360s" });
   return token;
 }
-export async function verifyAccessToken(token) {
+export async function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secretKey, (error, decode) => {
       if (error != null) {
@@ -63,7 +63,7 @@ export const tokenParser = (req, res, next) => {
     return;
   }
   console.log("Token:" + bearerToken);
-  verifyAccessToken(bearerToken)
+  verifyToken(bearerToken)
     .then((verifyResult) => {
       if (verifyResult.uid === undefined) {
         res.status(401).json({ message: "token expired" });
