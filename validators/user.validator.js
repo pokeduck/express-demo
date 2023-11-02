@@ -1,5 +1,6 @@
 import { body, param } from "express-validator";
 import resultHandler from "./result.validator.js";
+import { query } from "express";
 const passwordValidator = () => {
   return body("password")
     .notEmpty()
@@ -45,3 +46,8 @@ export const signUp = [
   resultHandler,
 ];
 export const token = [refreshTokenValidator(), resultHandler];
+
+export const verifyEmailToken = [
+  param("token").notEmpty().withMessage("The verification link has expired.1"),
+  resultHandler,
+];

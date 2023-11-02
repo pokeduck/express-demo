@@ -9,5 +9,7 @@ export default () => {
   router.post("/signIn", userValidator.signIn, userController.signIn);
   router.post("/signUp", userValidator.signUp, userController.signUp);
   router.post("/token", userValidator.token, userController.token);
+  router.post("/sendVerifyEmail", jwtMiddleware, userController.verifyEmail);
+  router.get("/verifyEmailToken", userController.verifyEmailToken);
   return router;
 };

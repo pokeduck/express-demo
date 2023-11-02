@@ -4,6 +4,7 @@ import * as Hash from "./hash.mjs";
 import {
   ACCESS_TOKEN_EXPIRE_TIME,
   REFRESH_TOKEN_EXPIRE_TIME,
+  EMAIL_TOKEN_EXPIRE_TIME,
 } from "../config/token.config.js";
 const secretKey = process.env.JWT_SECRET_KEY ?? "key";
 
@@ -61,6 +62,13 @@ export function generateAccessToken(payload) {
 export function generateRefreshTokenWithUid(uid) {
   const token = jwt.sign({ uid: uid }, secretKey, {
     expiresIn: REFRESH_TOKEN_EXPIRE_TIME,
+  });
+  return token;
+}
+
+export function generateEmailToken(uid) {
+  const token = jwt.sign({ uid: uid }, secretKey, {
+    expiresIn: EMAIL_TOKEN_EXPIRE_TIME,
   });
   return token;
 }
