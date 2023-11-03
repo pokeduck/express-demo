@@ -23,3 +23,8 @@ export const create = [
   body("content").notEmpty().withMessage("must have content"),
   resultValidator,
 ];
+
+export const upvote = [
+  body("contentId").notEmpty().withMessage("must have contentId"),
+  resultValidator,
+];
