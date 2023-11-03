@@ -7,7 +7,9 @@ import uidFormat from "../utils/uid.js";
 import responseHander from "../utils/responseHander.js";
 import * as RedisRefreshToken from "../services/token.service.js";
 import createEmailLink from "../services/ethereal.service.js";
+import renderHandler from "../utils/renderHandler.js";
 const userQuery = query(UserDAO);
+
 class UserController {
   async signIn(req, res, next) {
     const { email, password } = req.body;
@@ -143,20 +145,23 @@ class UserController {
         responseHander(res, { etherealLink: link });
       });
     } else {
-      responseHander(res, {
-        message: '"The email has previously been successfully validated."',
-      });
+      responseHander(
+        res,
+        null,
+        "ERROR_MAIL_01",
+        "The email has previously been successfully validated."
+      );
     }
   }
   async verifyEmailToken(req, res, next) {
-    const emailToken = req.query.token ?? "";
-    const uid = await JWT.getUidFromToken(emailToken);
-    const user = await userQuery.findOne({ where: { userId: uid } });
-    const isVerified = user?.verificationStatus ?? false;
-    console.log("Email+" + emailToken);
-    console.log(uid);
-    console.log(isVerified);
-    if (isVerified === 1) {
+    const accepts = req.headers?.accept ?? "";
+    const emailToken = req.query?.token ?? "";
+
+    function sendExpired(payload) {
+      if (accepts.includes("text/html")) {
+        renderHandler(res, "verification-expired", payload);
+        return;
+      }
       responseHander(
         res,
         null,
@@ -164,36 +169,48 @@ class UserController {
         "The verification link has expired.2",
         403
       );
-      return;
     }
-    await userQuery.update(
-      { verificationStatus: true },
-      { where: { userId: uid } }
-    );
-
-    const accepts = req.headers?.accept ?? "";
-    if (accepts.includes("text/html")) {
-      res
-        .status(200)
-        .set("Content-Type", "text/html")
-        .render("verification-success", {
-          user: user,
-          token: token,
-        });
-      return;
+    function sendSuccess(payload) {
+      if (accepts.includes("text/html")) {
+        renderHandler(res, "verification-success", payload);
+        return;
+      }
+      responseHander(res, { message: "驗證完成" });
     }
-
-    responseHander(res, { message: "驗證完成" });
+    try {
+      const uid = await JWT.getUidFromToken(emailToken);
+      const user = await userQuery.findOne({ where: { userId: uid } });
+      const isVerified = user?.verificationStatus ?? "0";
+      console.log("Email+" + emailToken);
+      console.log(uid);
+      console.log(isVerified);
+      if (isVerified === "1") {
+        sendExpired({ link: emailToken });
+        return;
+      }
+      await userQuery.update(
+        { verificationStatus: true },
+        { where: { userId: uid } }
+      );
+      sendSuccess({
+        user: user,
+        token: emailToken,
+      });
+    } catch (error) {
+      sendExpired({ link: emailToken });
+    }
   }
 }
 
 function formatUser(user) {
+  const isEmailVerified = (user?.verificationStatus ?? "0") === "1";
   return {
     uid: user.userId,
     userName: user.userName,
     email: user.email,
     accessToken: user.authToken,
     refreshToken: user.refreshToken,
+    isEmailVerified: isEmailVerified,
   };
 }
 

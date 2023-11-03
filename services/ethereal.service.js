@@ -66,7 +66,7 @@ export default function createEmailLink(mailToken, callBack) {
       text: "Hello to myself!",
 
       // HTML body
-      html: `<p><a href="http://127.0.0.1:${process.env.API_PORT}/api/v1/user/verifyEmailToken?token=${mailToken}">Verify Email</a></p><p>Or Click Link</p><p><a href="http://127.0.0.1:${process.env.API_PORT}/api/v1/user/verifyEmailToken?token=${mailToken}">http://127.0.0.1:${process.env.API_PORT}/api/v1/user/verifyEmailToken?token=${mailToken}</a></p><p><b>Hello</b> to myself <img src="cid:note@example.com"/></p>
+      html: `<p><a href="http://127.0.0.1:${process.env.API_PORT}/api/v2/user/verifyEmailToken?token=${mailToken}">Verify Email</a></p><p>Or Click Link</p><p><a href="http://127.0.0.1:${process.env.API_PORT}/api/v2/user/verifyEmailToken?token=${mailToken}">http://127.0.0.1:${process.env.API_PORT}/api/v2/user/verifyEmailToken?token=${mailToken}</a></p><p><b>Hello</b> to myself <img src="cid:note@example.com"/></p>
         <p>Here's a nyan cat for you as an embedded attachment:<br/><img src="cid:nyan@example.com"/></p>`,
 
       // AMP4EMAIL
