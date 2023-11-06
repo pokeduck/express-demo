@@ -16,5 +16,17 @@ export default () => {
     messageValidator.create,
     messageController.createWithError
   );
+  router.post(
+    "/upvote",
+    jwtMiddleware,
+    messageValidator.upvote,
+    messageController.upvote
+  );
+  router.post(
+    "/action",
+    jwtMiddleware,
+    messageValidator.action,
+    messageController.action
+  );
   return router;
 };

@@ -13,10 +13,11 @@ module.exports = (sequelize, DataTypes) => {
   }
   UsersComment.init(
     {
-      userId: DataTypes.STRING,
+      userId: DataTypes.INTEGER,
       contentId: DataTypes.STRING,
       parentId: DataTypes.STRING,
       text: DataTypes.STRING,
+      titie: DataTypes.STRING,
       //createAt: DataTypes.DATE,
       //modifyAt: DataTypes.DATE,
       upvotes: DataTypes.INTEGER,

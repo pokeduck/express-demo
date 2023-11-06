@@ -28,3 +28,9 @@ export const upvote = [
   body("contentId").notEmpty().withMessage("must have contentId"),
   resultValidator,
 ];
+
+export const action = [
+  body("messageId").notEmpty().withMessage("must have messageId"),
+  body("action").notEmpty().withMessage("must have action"),
+  resultValidator,
+];

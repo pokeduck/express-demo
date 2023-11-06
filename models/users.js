@@ -8,6 +8,14 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      Users.hasMany(models.CommentHistory, {
+        foreignKey: {
+          name: "userId",
+          allowNull: false,
+          onDelete: "NO ACTION",
+          onUpdate: "NO ACTION",
+        },
+      });
       // define association here
     }
   }
