@@ -205,6 +205,7 @@ class UserController {
 function formatUser(user) {
   const isEmailVerified = (user?.verificationStatus ?? "0") === "1";
   return {
+    id: user.id,
     uid: user.userId,
     userName: user.userName,
     email: user.email,

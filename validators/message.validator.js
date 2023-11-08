@@ -34,3 +34,10 @@ export const action = [
   body("action").notEmpty().withMessage("must have action"),
   resultValidator,
 ];
+
+export const edit = [
+  body("id").notEmpty().withMessage("must have id"),
+  body("title").notEmpty().withMessage("must have title"),
+  body("content").notEmpty().withMessage("must have content"),
+  resultValidator,
+];
