@@ -9,10 +9,21 @@ client.on("error", (err) => console.log("Redis Client Error", err));
 
 await client.connect();
 
+/**
+ *
+ * @param {string} key
+ * @param {string | Buffer} value
+ * @param { number } expTime
+ */
 export async function set(key, value, expTime = -1) {
   await client.set(key, value, { EX: expTime });
 }
 
+/**
+ *
+ * @param {string} key
+ * @returns {any}
+ */
 export async function get(key) {
   return await client.get(key);
 }

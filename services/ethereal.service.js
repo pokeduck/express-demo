@@ -16,6 +16,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+/**
+ *
+ * @param {string} mailToken
+ * @param { Function } callBack
+ */
 export default function createEmailLink(mailToken, callBack) {
   nodemailer.createTestAccount((err, account) => {
     if (err) {

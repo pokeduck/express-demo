@@ -31,6 +31,11 @@ function test() {
 //app.use(expressJWT({ secret:secretKey, algorithms: ['HS256'] }).unless({ path: [/^\/api\//] }));
 //console.log(decode);
 
+/**
+ *
+ * @param {string} uid
+ * @returns {string}
+ */
 export function generateAccessTokenWithUid(uid) {
   const token = jwt.sign({ uid: uid }, secretKey, {
     expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
@@ -38,6 +43,11 @@ export function generateAccessTokenWithUid(uid) {
   return token;
 }
 
+/**
+ *
+ * @param {string} token
+ * @returns {Promise<string>}
+ */
 export async function getUidFromToken(token) {
   return verifyToken(token)
     .then((verifyResult) => {
@@ -53,19 +63,33 @@ export async function getUidFromToken(token) {
     });
 }
 
+/**
+ *
+ * @param {object} payload
+ * @returns {string}
+ */
 export function generateAccessToken(payload) {
   const token = jwt.sign(payload, secretKey, {
     expiresIn: ACCESS_TOKEN_EXPIRE_TIME,
   });
   return token;
 }
+/**
+ *
+ * @param {string} uid
+ * @returns {string}
+ */
 export function generateRefreshTokenWithUid(uid) {
   const token = jwt.sign({ uid: uid }, secretKey, {
     expiresIn: REFRESH_TOKEN_EXPIRE_TIME,
   });
   return token;
 }
-
+/**
+ *
+ * @param {string} uid
+ * @returns {string}
+ */
 export function generateEmailToken(uid) {
   const token = jwt.sign({ uid: uid }, secretKey, {
     expiresIn: EMAIL_TOKEN_EXPIRE_TIME,
@@ -73,6 +97,11 @@ export function generateEmailToken(uid) {
   return token;
 }
 
+/**
+ *
+ * @param {string} token
+ * @returns {Promise<object>}
+ */
 export async function verifyToken(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secretKey, (error, decode) => {
@@ -87,6 +116,13 @@ export async function verifyToken(token) {
 }
 export function authGrant(req, res) {}
 
+/**
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * @returns {Promise<void>}
+ */
 export const tokenParser = (req, res, next) => {
   console.log("Cookies: ", req.cookies);
   console.log("Signed Cookies: ", req.signedCookies);

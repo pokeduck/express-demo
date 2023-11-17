@@ -1,3 +1,7 @@
+/**
+ *
+ * @param {Error} err
+ */
 export function logError(err) {
   /*   console.log(`[error][message] ${err.message}`);
   console.log(`[error][status] ${err.status}`);

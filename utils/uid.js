@@ -1,4 +1,10 @@
-export default (serialId, date) => {
+/**
+ *
+ * @param {string | number} serialId
+ * @param {Date} date
+ * @returns
+ */
+const uid = (serialId, date) => {
   const limitUserPerDay = 100000;
   const formatedUid = limitUserPerDay + serialId;
   const year = date.getFullYear().toString().padStart(4, "0");
@@ -6,3 +12,4 @@ export default (serialId, date) => {
   const day = (date.getDate() + 1).toString().padStart(2, "0");
   return `${year}${month}${day}${formatedUid}`;
 };
+export default uid;

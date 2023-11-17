@@ -11,6 +11,7 @@ import renderHandler from "../utils/renderHandler.js";
 const userQuery = query(UserDAO);
 
 class UserController {
+  
   async signIn(req, res, next) {
     const { email, password } = req.body;
     try {
@@ -141,6 +142,7 @@ class UserController {
       user?.verificationStatus === false
     ) {
       const emailToken = JWT.generateEmailToken(uid);
+      createEmailLink('1',)
       createEmailLink(emailToken, (link) => {
         responseHander(res, { etherealLink: link });
       });
